@@ -4,9 +4,13 @@
 #include <iostream>
 #include <cstdint>
 
+#define INT17_MAX 0x1FFFF
+#define MEM_LIMIT 0x40000000
+
 class Array3D;
+
 class Helper17BitNumber {
-private:
+public:
     Array3D *parentArray;
     uint32_t self_pos, number = 0;
 
@@ -15,7 +19,6 @@ private:
     uint32_t get17BitNumber(uint32_t pos) const;
     void set17BitNumber(uint32_t pos, uint32_t number);
 
-public:
     Helper17BitNumber(Array3D* array, uint32_t pos);
     uint32_t operator=(auto value) {
         set17BitNumber(self_pos, uint32_t(value));
@@ -41,9 +44,6 @@ public:
     bool operator!=(auto value) const {
         return number != value;
     }
-
-    std::ostream &operator<<(std::ostream &os) const;
-    std::istream &operator>>(std::istream &is);
 
     auto operator+(auto value) const {
         return number + value;
@@ -128,17 +128,32 @@ public:
     }
 };
 
+std::ostream &operator<<(std::ostream &os, const Helper17BitNumber &number);
+std::istream &operator>>(std::istream &is, Helper17BitNumber number);
+
 class Array3D {
+private:
+    uint32_t real_size;
+    static uint32_t realSizeInBytes(uint32_t size);
+    uint32_t get1DIndex(uint32_t x, uint32_t y, uint32_t z) const;
+
 public:
     char* array;
     uint32_t width, height, depth;
-    uint32_t real_size;
 
-    static uint32_t realSizeInBytes(uint32_t size);
-    Array3D(uint32_t w, uint32_t h, uint32_t d);
-    uint32_t get1DIndex(uint32_t x, uint32_t y, uint32_t z);
+    Array3D(int32_t w, int32_t h, int32_t d);
+    static Array3D newArray3D(int32_t w, int32_t h, int32_t d);
 
-    Helper17BitNumber at(uint32_t x, uint32_t y, uint32_t z);
+    Helper17BitNumber at(int32_t x, int32_t y, int32_t z);
+
+    Array3D operator+(Array3D &other);
+    Array3D operator-(Array3D &other);
+    Array3D operator*(double value);
+
+    ~Array3D();
 };
+
+std::ostream &operator<<(std::ostream &os, Array3D &array);
+std::istream &operator>>(std::istream &is, Array3D &array);
 
 #endif //LABWORK4_3DARRAY_H
